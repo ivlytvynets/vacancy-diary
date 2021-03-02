@@ -32,7 +32,7 @@ public class UserDaoImpl implements UserDao {
             if (transaction != null) {
                 transaction.rollback();
             }
-            throw new DataProcessingException("Can't add user" + user + "to database", e);
+            throw new DataProcessingException("Can't add user" + user + " to database", e);
         } finally {
             if (session != null) {
                 session.close();
@@ -43,8 +43,8 @@ public class UserDaoImpl implements UserDao {
     @Override
     public Optional<User> findByEmail(String email) {
         try (Session session = sessionFactory.openSession()) {
-            Query<User> query = session.createQuery("from User u left join fetch u.vacancies "
-                    + "where email=:email", User.class);
+            Query<User> query = session.createQuery("select u from User u "
+                    + "left join fetch u.vacancies where u.email=:email", User.class);
             query.setParameter("email", email);
             return query.uniqueResultOptional();
         } catch (Exception e) {

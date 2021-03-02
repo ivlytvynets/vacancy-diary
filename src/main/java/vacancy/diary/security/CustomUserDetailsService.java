@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.User.UserBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import vacancy.diary.model.User;
 import vacancy.diary.service.UserService;
@@ -13,9 +14,12 @@ import vacancy.diary.service.UserService;
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
-    public CustomUserDetailsService(UserService userService) {
+    public CustomUserDetailsService(UserService userService,
+                                    PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -23,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userService.findByEmail(username).orElseThrow(
                 () -> new UsernameNotFoundException("User not found."));
         UserBuilder userBuilder = withUsername(username);
-        userBuilder.password(user.getPassword());
+        userBuilder.password(passwordEncoder.encode(user.getPassword()));
         userBuilder.roles("USER");
         return userBuilder.build();
     }
